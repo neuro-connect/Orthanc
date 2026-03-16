@@ -1,0 +1,87 @@
+{
+    "PythonScript": "/opt/orthanc/plugins/load_plugins.py",
+    "HttpPort" : 8042,
+    "DicomAet" : "DEMO_PACS",
+    "DicomPort" : 4242,
+    "DicomModalities" : {
+        "PACS-CHUM" : [ "HOSPITAL_2", "192.168.18.6", 5000]
+    },
+    "Name": "DEMO Orthanc",
+    "OrthancExplorer2": {
+        "IsDefaultUI": true,
+        "Theme": "dark",
+        "CustomLogoUrl": "https://onset-documentation.readthedocs.io/_static/onset_logo_no_bg.png",
+        "CustomCssPath": "/opt/orthanc/custom.css",
+        "CustomTitle": "DEMO Orthanc",
+        "UiOptions": {
+        "EnableShares": false,
+        "EnableAuditLogs": true,
+        "DefaultShareDuration": 0,
+        "ShareDurations": [0, 7, 15, 30, 90, 365],
+        "EnableOpenInOhifViewer3": true,
+        "OhifViewer3PublicRoot": "http://localhost/orthanc/ohif/",
+        "ViewersOrdering" : [
+        "ohif",
+        "ohif-seg"
+        ],
+        "CustomButtons": {
+        "study": [{
+            "HttpMethod": "POST",
+            "Id": "my-custom-get",
+            "Tooltip": "Run SurgeryFlow",
+            "Icon": "fa fa-brain",
+            "Url": "../../surgeryflow-apply",
+            "Payload": {
+                "id": "{UUID}",
+                "patient-name": "{PatientName}"
+            },
+            "Refresh": true,
+            "StartMessage": "Running SurgeryFlow"
+        }],
+        "instance": [],
+        "series": [],
+        "bulk-studies": []
+        }
+        },
+        "Tokens" : {
+        "InstantLinksValidity": 3600,
+        "ShareType": "ohif-viewer-publication"
+        },
+        "Keycloak" : {
+        "Enable": true,
+        "Url": "http://localhost/keycloak/",
+        "Realm": "orthanc",
+        "ClientId": "orthanc"
+        },
+        "Inbox": {
+        "Enable": false,
+        "EnableAnonymousAccess": false
+        }
+    },
+    "AuthenticationEnabled": false,
+    "Authorization": {
+        "WebServiceRootUrl": "http://orthanc-auth-service:8000/",
+        "WebServiceUsername": "share-user",
+        "WebServicePassword": "change-me",
+        "StandardConfigurations" : [
+        "osimis-web-viewer",
+        "stone-webviewer",
+        "orthanc-explorer-2",
+        "ohif"
+        ],
+        "TokenHttpHeaders" : [ "api-key" ],
+        "CheckedLevel": "studies",
+        "ExtraPermissions": [
+        ["post", "^/surgeryflow-apply$", "upload|all"]
+        ],
+        "EnableAuditLogs": true
+    },
+    "DicomWeb": {
+        "Enable": true,
+        "PublicRoot": "/orthanc/dicom-web/"
+    },
+    "OHIF": {
+        "DataSource": "dicom-web",
+        "RouterBasename": "/orthanc/ohif/"
+    }
+}

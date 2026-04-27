@@ -24,7 +24,7 @@ services:
       - orthanc-storage:/var/lib/orthanc/db
       - ${ORTHANC_CONFIG:-./orthanc.json}:/etc/orthanc/orthanc.json:ro
       - ./plugins:/opt/orthanc/plugins
-      - ./assets/custom.css:/opt/orthanc/custom.css:ro
+      - ./custom.css:/opt/orthanc/custom.css:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
     ports: ["4242:4242"]
@@ -34,14 +34,11 @@ services:
       STONE_WEB_VIEWER_PLUGIN_ENABLED: "false"
       DICOM_WEB_PLUGIN_ENABLED: "true"
       OHIF_PLUGIN_ENABLED: "true"
-      ORTHANC__POSTGRESQL__HOST: "orthanc-db" # Pour se connecter: psql -h orthanc-db -U postgres
+      ORTHANC__POSTGRESQL__HOST: "orthanc-db"
       ORTHANC__POSTGRESQL__TRANSACTION_MODE: "ReadCommitted"
       VERBOSE_ENABLED: "true"
       VERBOSE_STARTUP: "true"
       PYTHONIOENCODING: "utf-8"
-      BREVO_API_KEY: "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"
-      BREVO_EMAIL: "pacs@theonsetlab.com"
-      BREVO_NAME: "ONSET-PACS"
     deploy:
       resources:
         reservations:
@@ -57,12 +54,12 @@ services:
     depends_on: [keycloak]
     restart: unless-stopped
     environment:
-      SECRET_KEY: "UJDPgPWKw2o9sIzcbvG4Y"
+      SECRET_KEY: "change-me"
       ENABLE_KEYCLOAK: "true"
-      KEYCLOAK_CLIENT_SECRET: "1OrY32ZhWPrenyE6GUCrL"
-      PUBLIC_ORTHANC_ROOT: "http://chum67945/orthanc/"
-      PUBLIC_LANDING_ROOT: "http://chum67945/orthanc/ui/app/token-landing.html"
-      PUBLIC_OHIF_ROOT: "http://chum67945/orthanc/ohif/"
+      KEYCLOAK_CLIENT_SECRET: "change-me"
+      PUBLIC_ORTHANC_ROOT: "http://localhost/orthanc/"
+      PUBLIC_LANDING_ROOT: "http://localhost/orthanc/ui/app/token-landing.html"
+      PUBLIC_OHIF_ROOT: "http://localhost/orthanc/ohif/"
       USERS: |
         {
           "share-user": "change-me"
@@ -85,10 +82,6 @@ services:
     restart: unless-stopped
     volumes:
       - ./email_theme:/opt/keycloak/themes/email_theme:ro
-      - ./assets/onset_logo_no_bg.png:/opt/keycloak/themes/orthanc/login/resources/img/orthanc-logo-text.png:ro
-      - ./assets/onset_logo_no_bg.png:/opt/keycloak/themes/orthanc/login/resources/img/orthanc-logo-text-shadow.png:ro
-      - ./assets/background_50.png:/opt/keycloak/themes/orthanc/login/resources/img/keycloak-bg.png:ro
-      - ./assets/login.css:/opt/keycloak/themes/orthanc/login/resources/css/login.css:ro
     environment:
       KC_THEME_CACHE_TEMPLATES: false
       KC_THEME_CACHE_THEMES: false
@@ -98,7 +91,7 @@ services:
       KC_DB_URL: "jdbc:postgresql://keycloak-db:5432/keycloak"
       KC_DB_USERNAME: "keycloak"
       KC_DB_PASSWORD: "2HrYL7yhnt8DfcYSRAK0v"
-      KC_HOSTNAME: "http://chum67945/keycloak"
+      KC_HOSTNAME: "http://localhost/keycloak"
       KC_EMAIL_HOST: smtp-to-brevo
       KC_EMAIL_PORT: 2525
       KC_EMAIL_FROM: pacs@theonsetlab.com
@@ -107,16 +100,16 @@ services:
     build: ./relay
     restart: unless-stopped
     environment:
-      - BREVO_API_KEY=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 # REMPLACER PAR VOTRE CLÉ
-      - SENDER_EMAIL=pacs@theonsetlab.com # DOIT ÊTRE VALIDÉ SUR BREVO
-      - SENDER_NAME=ONSET-PACS
+      - BREVO_API_KEY=change-me # REMPLACER PAR VOTRE CLÉ
+      - SENDER_EMAIL=name@host # DOIT ÊTRE VALIDÉ SUR BREVO
+      - SENDER_NAME=name
 
   keycloak-db:
     image: postgres:14
     restart: unless-stopped
     volumes: ["keycloak-db:/var/lib/postgresql/data"]
     environment:
-      POSTGRES_PASSWORD: "2HrYL7yhnt8DfcYSRAK0v"
+      POSTGRES_PASSWORD: "change-me"
       POSTGRES_USER: "keycloak"
       POSTGRES_DB: "keycloak"
 

@@ -16,7 +16,6 @@
       "permissions": [
         "view",
         "download",
-        "share",
         "send",
         "delete",
         "q-r-remote-modalities"

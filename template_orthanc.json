@@ -19,6 +19,7 @@
         "DefaultShareDuration": 0,
         "ShareDurations": [0, 7, 15, 30, 90, 365],
         "EnableOpenInOhifViewer3": true,
+        "AutoAddWildcardsToSearchFields": false,
         "OhifViewer3PublicRoot": "http://localhost/orthanc/ohif/",
         "ViewersOrdering" : [
         "ohif",
@@ -27,10 +28,10 @@
         "CustomButtons": {
         "study": [{
             "HttpMethod": "POST",
-            "Id": "my-custom-get",
+            "Id": "my-custom-post",
             "Tooltip": "Run SurgeryFlow",
             "Icon": "fa fa-brain",
-            "Url": "../../surgeryflow-apply",
+            "Url": "../../surgeryflow-apply", // In plugins/surgeryflow-plugin/surgeryflow.py
             "Payload": {
                 "id": "{UUID}",
                 "patient-name": "{PatientName}"
@@ -72,7 +73,7 @@
         "TokenHttpHeaders" : [ "api-key" ],
         "CheckedLevel": "studies",
         "ExtraPermissions": [
-        ["post", "^/surgeryflow-apply$", "upload|all"]
+        ["post", "^/surgeryflow-apply$", "download|all"]
         ],
         "EnableAuditLogs": true
     },

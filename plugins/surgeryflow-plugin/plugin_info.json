@@ -1,0 +1,7 @@
+{
+    "name": "SurgeryFlow",
+    "description": "Pipeline d'analyse des faisceaux de fibres — cartographie de 37 faisceaux pour la planification chirurgicale",
+    "version": "3.0.2",
+    "icon": "🧠",
+    "endpoint": "/surgeryflow-apply"
+}

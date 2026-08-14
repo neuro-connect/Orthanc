@@ -24,9 +24,10 @@ services:
       - orthanc-storage:/var/lib/orthanc/db
       - ${ORTHANC_CONFIG:-./orthanc.json}:/etc/orthanc/orthanc.json:ro
       - ./plugins:/opt/orthanc/plugins
-      - ./custom.css:/opt/orthanc/custom.css:ro
+      - ./assets/custom.css:/opt/orthanc/custom.css:ro
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
+      - /data:/data
     ports: ["4242:4242"]
     depends_on: [orthanc-db]
     restart: unless-stopped
@@ -39,6 +40,9 @@ services:
       VERBOSE_ENABLED: "true"
       VERBOSE_STARTUP: "true"
       PYTHONIOENCODING: "utf-8"
+      BREVO_API_KEY: "change-me"
+      BREVO_EMAIL: "name@host"
+      BREVO_NAME: "name"
     deploy:
       resources:
         reservations:
@@ -82,6 +86,10 @@ services:
     restart: unless-stopped
     volumes:
       - ./email_theme:/opt/keycloak/themes/email_theme:ro
+#      - ./assets/onset_logo_no_bg.png:/opt/keycloak/themes/orthanc/login/resources/img/orthanc-logo-text.png:ro
+#      - ./assets/onset_logo_no_bg.png:/opt/keycloak/themes/orthanc/login/resources/img/orthanc-logo-text-shadow.png:ro
+#      - ./assets/background_50.png:/opt/keycloak/themes/orthanc/login/resources/img/keycloak-bg.png:ro
+#      - ./assets/login.css:/opt/keycloak/themes/orthanc/login/resources/css/login.css:ro
     environment:
       KC_THEME_CACHE_TEMPLATES: false
       KC_THEME_CACHE_THEMES: false
@@ -99,10 +107,12 @@ services:
   smtp-to-brevo:
     build: ./relay
     restart: unless-stopped
+    ports: ["2525:2525"]
     environment:
       - BREVO_API_KEY=change-me # REMPLACER PAR VOTRE CLÉ
       - SENDER_EMAIL=name@host # DOIT ÊTRE VALIDÉ SUR BREVO
       - SENDER_NAME=name
+      - PYTHONUNBUFFERED=1
 
   keycloak-db:
     image: postgres:14

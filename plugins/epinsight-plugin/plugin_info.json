@@ -1,0 +1,6 @@
+{
+    "name": "Epinsight",
+    "description": "Pipeline de neuroimagerie pour l'analyse de l'épilepsie",
+    "version": "1.0.2",
+    "endpoint": "/epinsight-apply"
+}

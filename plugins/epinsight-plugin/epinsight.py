@@ -22,14 +22,14 @@ SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
 sys.path.append(os.path.join(SCRIPT_DIR, ".."))
 
 
-class SURGERYFLOWTRunner:
+class EPINSIGHTRunner:
     def __init__(self):
         self.temp_dir = tempfile.gettempdir()
         self.input_dir = None
         self.mni_template_path = None
         self.uuid = None
         self.output_paths = None
-        self.name = "SurgeryFlow"
+        self.name = "Epinsight"
 
     def _create_input(self, dicom: ZipFile):
         self.uuid = uuid.uuid4().hex
@@ -40,9 +40,9 @@ class SURGERYFLOWTRunner:
         if self.uuid:
             shutil.rmtree(os.path.join(self.temp_dir, self.uuid), ignore_errors=True)
 
-    def run(self, dicom: ZipFile, user_id: str, study_id: str):
+    def run(self, dicom: ZipFile, user_id: str, study_id: str, patient_name: str, patient_id: str):
         self._create_input(dicom)
-
+        print("Launch")
         try:
             results = subprocess.run(
                 [
@@ -51,24 +51,34 @@ class SURGERYFLOWTRunner:
                     "--pull=always",
                     "--shm-size=2g",
                     "--gpus=all",
+                    "--privileged",
                     "--rm",
                     "-v",
                     f"{self.input_dir}:/input/{self.uuid}",
                     "-v",
                     f"{self.temp_dir}/{self.uuid}:/output",
-                    "onsetlab/surgeryflow:chum_3.0.4",
+                    "-v",
+                    "/data:/data",
+                    "-v",
+                    "/usr/share/zoneinfo/UTC:/etc/localtime:ro",
+                    "--network",
+                    "host",
+                    "onsetlab/epinsight:1.0.2",
                     "nextflow",
                     "run",
-                    "/SurgeryFlow/main.nf",
-                    "--input",
+                    "/epinsight/main.nf",
+                    "--dicom",
                     f"/input/{self.uuid}",
                     "-profile",
-                    "standard,use_gpu",
-                    "--out_dicom_dir",
+                    "use_gpu,apptainer",
+                    "--output_dir",
                     "/output/results",
-                    "--bundles",
-                    '"OR_ML_R"',
-                    # '"AF_L" "AF_R" "CC_Fr_1" "CC_Fr_2" "CC_Oc" "CC_Pa" "CC_Pr_Po" "CC_Te" "CG_L" "CG_R" "FAT_L" "FAT_R" "FPT_L" "FPT_R" "FX_L" "FX_R" "ICP_L" "ICP_R" "IFOF_L" "IFOF_R" "ILF_L" "ILF_R" "MCP" "MdLF_L" "MdLF_R" "OR_ML_L" "OR_ML_R" "POPT_L" "POPT_R" "PYT_L" "PYT_R" "SCP_L" "SCP_R" "SLF_L" "SLF_R" "UF_L" "UF_R"',
+                    "--fs_license",
+                    "/assets/license.txt",
+                    "--patient_id",
+                    f"{patient_id}",
+                    "--name",
+                    f"{patient_name}"
                 ],
                 check=True,
                 capture_output=True,
@@ -77,10 +87,11 @@ class SURGERYFLOWTRunner:
                 errors="replace",
             )
             self.output_paths = glob.glob(
-                f"{self.temp_dir}/{self.uuid}/results/*__SurgeryFlow*/*/*.dcm")
-            self.output_paths += glob.glob(
-                f"{self.temp_dir}/{self.uuid}/results/*__SurgeryFlow_Medtronic/*.dcm")
-            
+                f"{self.temp_dir}/{self.uuid}/results/*__Bernarsconi/*.dcm")
+            print(self.output_paths)
+            self.output_paths.extend(glob.glob(
+                f"{self.temp_dir}/{self.uuid}/results/*.dcm"))
+            print(self.output_paths)
             for dcm in self.get_outputs():
                 with open(dcm, "rb") as f:
                     content = f.read()
@@ -92,8 +103,9 @@ class SURGERYFLOWTRunner:
                 "stdout": e.stdout,
                 "stderr": e.stderr,
             }
+            print(e.stdout, e.stderr)
             orthanc.EmitAuditLog(
-                "SurgeryFlow",
+                "Epinsight",
                 user_id,
                 orthanc.ResourceType.STUDY,
                 study_id,
@@ -122,14 +134,15 @@ def get_user_id(request):
     return None
 
 
-def execute_surgeryflow(output, uri, **request):
+def execute_epinsight(output, uri, **request):
     if request["method"] != "POST":
         output.SendMethodNotAllowed("POST")
     else:
         body = json.loads(request["body"])
         patient_name = str(body["patient-name"]).replace("^", " ").rstrip()
         patient_initials = ".".join(part[0].upper() for part in patient_name.split() if part) + "."
-        orthanc.LogInfo(f"SURGERYFLOW: Load the original study {body['id']}")
+        patient_id = str(body["patient-id"])
+        orthanc.LogInfo(f"EPINSIGHT: Load the original study {body['id']}")
         job = json.loads(orthanc.RestApiPost(f"/studies/{body['id']}/archive", json.dumps({"Asynchronous": True})))
         job_id = job["ID"]
         while True:
@@ -144,55 +157,59 @@ def execute_surgeryflow(output, uri, **request):
         user_id, email, name = get_user_id(request)
         z = ZipFile(io.BytesIO(r))
 
-        surgeryflow = SURGERYFLOWTRunner()
+        epinsight = EPINSIGHTRunner()
         orthanc.EmitAuditLog(
-            surgeryflow.name,
+            epinsight.name,
             user_id,
             orthanc.ResourceType.STUDY,
             body["id"],
-            f"{surgeryflow.name} - Start",
+            f"{epinsight.name} - Start",
             None,
         )
         if email is not None:
-            notification = JobNotification(email, f"ONSET-PACS - {surgeryflow.name} ({patient_initials})")
+            notification = JobNotification(email, f"ONSET-PACS - {epinsight.name} ({patient_initials})")
             notification.render_template(
                         name=name,
                         patient_name=patient_initials,
                         status="Submitted",
                         url=request["headers"]["referer"],
-                        tool=surgeryflow.name)
+                        tool=epinsight.name)
             notification.send()
-        status, err_code = surgeryflow.run(z, user_id, body["id"])
-        
+        try:
+            _, err_code = epinsight.run(z, user_id, body["id"], patient_name, patient_id)
+        finally:
+            epinsight.clean_up()
+
         job_status = 1 if err_code == 0 else 2
         print(job_status)
-        if job_status == 1:
-            notification.render_template(
-                name=name,
-                patient_name=patient_initials,
-                status="Completed",
-                url=request["headers"]["referer"],
-                status_color="green",
-                tool=surgeryflow.name,
-            )
-            orthanc.EmitAuditLog(
-                surgeryflow.name,
-                user_id,
-                orthanc.ResourceType.STUDY,
-                body["id"],
-                f"{surgeryflow.name} - Finished",
-                None
-            )
-        elif job_status == 2:
-            notification.render_template(
-                name=name,
-                patient_name=patient_initials,
-                status="Failed",
-                url=request["headers"]["referer"],
-                status_color="red",
-                tool=surgeryflow.name,
-            )
-        notification.send()
+        if notification is not None:
+            if job_status == 1:
+                notification.render_template(
+                    name=name,
+                    patient_name=patient_initials,
+                    status="Completed",
+                    url=request["headers"]["referer"],
+                    status_color="green",
+                    tool=epinsight.name,
+                )
+                orthanc.EmitAuditLog(
+                    epinsight.name,
+                    user_id,
+                    orthanc.ResourceType.STUDY,
+                    body["id"],
+                    f"{epinsight.name} - Finished",
+                    None
+                )
+            elif job_status == 2:
+                notification.render_template(
+                    name=name,
+                    patient_name=patient_initials,
+                    status="Failed",
+                    url=request["headers"]["referer"],
+                    status_color="red",
+                    tool=epinsight.name,
+                )
+            notification.send()
 
 
-orthanc.RegisterRestCallback("/surgeryflow-apply", execute_surgeryflow)
+orthanc.RegisterRestCallback("/epinsight-apply", execute_epinsight)

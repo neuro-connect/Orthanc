@@ -1,0 +1,103 @@
+{
+    "PythonScript": "/opt/orthanc/plugins/load_plugins.py",
+    "HttpPort" : 8042,
+    "DicomAet" : "DEMO_PACS",
+    "DicomPort" : 4242,
+    "DicomModalities" : {
+        "PACS-DEMO" : {"AET": "HOSPITAL_2", "Host": "192.168.18.6", "Port": 5000}
+    },
+    "Name": "DEMO Orthanc",
+    "OrthancExplorer2": {
+        "IsDefaultUI": true,
+        "Theme": "dark",
+        "CustomLogoUrl": "https://onset-documentation.readthedocs.io/_static/onset_logo_no_bg.png",
+        "CustomCssPath": "/opt/orthanc/custom.css",
+        "CustomTitle": "DEMO Orthanc",
+        "UiOptions": {
+        "EnableShares": false,
+        "EnableAuditLogs": true,
+        "DefaultShareDuration": 0,
+        "ShareDurations": [0, 7, 15, 30, 90, 365],
+        "EnableOpenInOhifViewer3": true,
+        "AutoAddWildcardsToSearchFields": false,
+        "OhifViewer3PublicRoot": "http://pacslocalhost/orthanc/ohif/",
+        "ViewersOrdering" : [
+        "ohif",
+        "ohif-seg"
+        ],
+        "CustomButtons": {
+        "study": [{
+            "HttpMethod": "POST",
+            "Id": "my-custom-post",
+            "Tooltip": "Run SurgeryFlow",
+            "Icon": "fa fa-brain",
+            "Url": "../../surgeryflow-apply", // In plugins/surgeryflow-plugin/surgeryflow.py
+            "Payload": {
+                "id": "{UUID}",
+                "patient-name": "{PatientName}"
+            },
+            "Refresh": true,
+            "StartMessage": "Running SurgeryFlow"
+        },
+        {
+            "HttpMethod": "POST",
+            "Id": "my-custom-epinsight",
+            "Tooltip": "Run Epinsight",
+            "Icon": "fa fa-bolt-lightning",
+            "Url": "../../epinsight-apply", // In plugins/epinsight-plugin/
+            "Payload": {
+                "id": "{UUID}",
+                "patient-name": "{PatientName}",
+                "patient-id": "{PatientID}"
+            },
+            "Refresh": true,
+            "StartMessage": "Running Epinsight"
+        }],
+        "instance": [],
+        "series": [],
+        "bulk-studies": []
+        }
+        },
+        "Tokens" : {
+        "InstantLinksValidity": 3600,
+        "ShareType": "ohif-viewer-publication"
+        },
+        "Keycloak" : {
+        "Enable": true,
+        "Url": "http://pacs.localhost/keycloak/",
+        "Realm": "orthanc",
+        "ClientId": "orthanc"
+        },
+        "Inbox": {
+        "Enable": false,
+        "EnableAnonymousAccess": false
+        }
+    },
+    "AuthenticationEnabled": false,
+    "Authorization": {
+        "WebServiceRootUrl": "http://orthanc-auth-service:8000/",
+        "WebServiceUsername": "share-user",
+        "WebServicePassword": "neuropoly",
+        "StandardConfigurations" : [
+        "osimis-web-viewer",
+        "stone-webviewer",
+        "orthanc-explorer-2",
+        "ohif"
+        ],
+        "TokenHttpHeaders" : [ "api-key" ],
+        "CheckedLevel": "studies",
+        "ExtraPermissions": [
+        ["post", "^/surgeryflow-apply$", "download|all"],
+        ["post", "^/epinsight-apply$", "download|all"]
+        ],
+        "EnableAuditLogs": true
+    },
+    "DicomWeb": {
+        "Enable": true,
+        "PublicRoot": "/orthanc/dicom-web/"
+    },
+    "OHIF": {
+        "DataSource": "dicom-web",
+        "RouterBasename": "/orthanc/ohif/"
+    }
+}

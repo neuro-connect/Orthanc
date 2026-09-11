@@ -63,9 +63,9 @@ services:
       SECRET_KEY: "neuropoly"
       ENABLE_KEYCLOAK: "true"
       KEYCLOAK_CLIENT_SECRET: "neuropoly"
-      PUBLIC_ORTHANC_ROOT: "http://pacs.localhost/orthanc/"
-      PUBLIC_LANDING_ROOT: "http://pacs.localhost/orthanc/ui/app/token-landing.html"
-      PUBLIC_OHIF_ROOT: "http://pacs.localhost/orthanc/ohif/"
+      PUBLIC_ORTHANC_ROOT: "http://pacs.neurochirurgie/orthanc/"
+      PUBLIC_LANDING_ROOT: "http://pacs.neurochirurgie/orthanc/ui/app/token-landing.html"
+      PUBLIC_OHIF_ROOT: "http://pacs.neurochirurgie/orthanc/ohif/"
       USERS: |
         {
           "share-user": "neuropoly"
@@ -101,7 +101,7 @@ services:
       KC_DB_URL: "jdbc:postgresql://keycloak-db:5432/keycloak"
       KC_DB_USERNAME: "keycloak"
       KC_DB_PASSWORD: "neuropoly"
-      KC_HOSTNAME: "http://pacs.localhost/keycloak"
+      KC_HOSTNAME: "http://pacs.neurochirurgie/keycloak"
       KC_EMAIL_HOST: smtp-to-brevo
       KC_EMAIL_PORT: 2525
       KC_EMAIL_FROM: pacs@neuro.com

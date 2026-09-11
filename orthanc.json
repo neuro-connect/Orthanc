@@ -20,7 +20,7 @@
         "ShareDurations": [0, 7, 15, 30, 90, 365],
         "EnableOpenInOhifViewer3": true,
         "AutoAddWildcardsToSearchFields": false,
-        "OhifViewer3PublicRoot": "http://pacslocalhost/orthanc/ohif/",
+        "OhifViewer3PublicRoot": "http://pacs.neurochirurgie/orthanc/ohif/",
         "ViewersOrdering" : [
         "ohif",
         "ohif-seg"
@@ -64,7 +64,7 @@
         },
         "Keycloak" : {
         "Enable": true,
-        "Url": "http://pacs.localhost/keycloak/",
+        "Url": "http://pacs.neurochirurgie/keycloak/",
         "Realm": "orthanc",
         "ClientId": "orthanc"
         },

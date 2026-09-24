@@ -10,7 +10,7 @@
     "OrthancExplorer2": {
         "IsDefaultUI": true,
         "Theme": "dark",
-        "CustomLogoUrl": "https://onset-documentation.readthedocs.io/_static/onset_logo_no_bg.png",
+        "CustomLogoUrl": "http://pacs.neurochirurgie/logo-chusj.png",
         "CustomCssPath": "/opt/orthanc/custom.css",
         "CustomTitle": "DEMO Orthanc",
         "UiOptions": {

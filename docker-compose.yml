@@ -124,6 +124,10 @@ services:
       POSTGRES_DB: "keycloak"
 
 networks:
+  default:
+    ipam:
+      config:
+        - subnet: 10.254.2.0/24
   xnat-network:
     external: true
 

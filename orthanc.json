@@ -76,7 +76,7 @@
   "Authorization": {
     "WebServiceRootUrl": "http://orthanc-auth-service:8000/",
     "WebServiceUsername": "share-user",
-    "WebServicePassword": "neuropoly",
+    "WebServicePassword": "${AUTH_SHARE_PASSWORD}",
     "StandardConfigurations": [
       "osimis-web-viewer",
       "stone-webviewer",

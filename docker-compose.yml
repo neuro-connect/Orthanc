@@ -34,6 +34,7 @@ services:
     restart: unless-stopped
     environment:
       STONE_WEB_VIEWER_PLUGIN_ENABLED: "false"
+      AUTH_SHARE_PASSWORD: "${AUTH_SHARE_PASSWORD}"
       DICOM_WEB_PLUGIN_ENABLED: "true"
       OHIF_PLUGIN_ENABLED: "true"
       ORTHANC__POSTGRESQL__HOST: "orthanc-db"
@@ -41,9 +42,9 @@ services:
       VERBOSE_ENABLED: "true"
       VERBOSE_STARTUP: "true"
       PYTHONIOENCODING: "utf-8"
-      BREVO_API_KEY: "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"
-      BREVO_EMAIL: "beaujaultnolan@gmail.com"
-      BREVO_NAME: "Nolan Beaujault"
+      BREVO_API_KEY: "${BREVO_API_KEY}"
+      BREVO_EMAIL: "${SENDER_EMAIL}"
+      BREVO_NAME: "${SENDER_NAME}"
     deploy:
       resources:
         reservations:
@@ -59,20 +60,19 @@ services:
     depends_on: [keycloak]
     restart: unless-stopped
     environment:
-      SECRET_KEY: "neuropoly"
+      SECRET_KEY: "${AUTH_SECRET_KEY}"
       ENABLE_KEYCLOAK: "true"
-      KEYCLOAK_CLIENT_SECRET: "neuropoly"
+      KEYCLOAK_CLIENT_SECRET: "${KEYCLOAK_CLIENT_SECRET}"
       PUBLIC_ORTHANC_ROOT: "http://pacs-neuro/orthanc/"
       PUBLIC_LANDING_ROOT: "http://pacs-neuro/orthanc/ui/app/token-landing.html"
       PUBLIC_OHIF_ROOT: "http://pacs-neuro/orthanc/ohif/"
       USERS: |
         {
-          "share-user": "neuropoly"
+          "share-user": "${AUTH_SHARE_PASSWORD}"
         }
 
   orthanc-db:
     image: postgres:14
-    ports: ["5432:5432"]
     restart: unless-stopped
     volumes: ["orthanc-db:/var/lib/postgresql/data"]
     environment:
@@ -94,11 +94,11 @@ services:
       KC_THEME_CACHE_TEMPLATES: false
       KC_THEME_CACHE_THEMES: false
       KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
-      KC_BOOTSTRAP_ADMIN_PASSWORD: "neuropoly"
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
       KC_DB: "postgres"
       KC_DB_URL: "jdbc:postgresql://keycloak-db:5432/keycloak"
       KC_DB_USERNAME: "keycloak"
-      KC_DB_PASSWORD: "neuropoly"
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
       KC_HOSTNAME: "http://pacs-neuro/keycloak"
       KC_EMAIL_HOST: smtp-to-brevo
       KC_EMAIL_PORT: 2525
@@ -107,11 +107,10 @@ services:
   smtp-to-brevo:
     build: ./relay
     restart: unless-stopped
-    ports: ["2525:2525"]
     environment:
-      - BREVO_API_KEY=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 # REMPLACER PAR VOTRE CLÉ
-      - SENDER_EMAIL=beaujaultnolan@gmail.com # DOIT ÊTRE VALIDÉ SUR BREVO
-      - SENDER_NAME=Nolan Beaujault
+      - BREVO_API_KEY=${BREVO_API_KEY}
+      - SENDER_EMAIL=${SENDER_EMAIL}
+      - SENDER_NAME=${SENDER_NAME}
       - PYTHONUNBUFFERED=1
 
   keycloak-db:
@@ -119,7 +118,7 @@ services:
     restart: unless-stopped
     volumes: ["keycloak-db:/var/lib/postgresql/data"]
     environment:
-      POSTGRES_PASSWORD: "neuropoly"
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
       POSTGRES_USER: "keycloak"
       POSTGRES_DB: "keycloak"
 

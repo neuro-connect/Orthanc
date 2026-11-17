@@ -71,7 +71,6 @@ services:
 
   orthanc-db:
     image: postgres:14
-    ports: ["5432:5432"]
     restart: unless-stopped
     volumes: ["orthanc-db:/var/lib/postgresql/data"]
     environment:
@@ -94,11 +93,11 @@ services:
       KC_THEME_CACHE_TEMPLATES: false
       KC_THEME_CACHE_THEMES: false
       KC_BOOTSTRAP_ADMIN_USERNAME: "admin"
-      KC_BOOTSTRAP_ADMIN_PASSWORD: "change-me"
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KC_ADMIN_PASSWORD}
       KC_DB: "postgres"
       KC_DB_URL: "jdbc:postgresql://keycloak-db:5432/keycloak"
       KC_DB_USERNAME: "keycloak"
-      KC_DB_PASSWORD: "2HrYL7yhnt8DfcYSRAK0v"
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
       KC_HOSTNAME: "http://localhost/keycloak"
       KC_EMAIL_HOST: smtp-to-brevo
       KC_EMAIL_PORT: 2525
@@ -107,11 +106,10 @@ services:
   smtp-to-brevo:
     build: ./relay
     restart: unless-stopped
-    ports: ["2525:2525"]
     environment:
-      - BREVO_API_KEY=change-me # REMPLACER PAR VOTRE CLÉ
-      - SENDER_EMAIL=name@host # DOIT ÊTRE VALIDÉ SUR BREVO
-      - SENDER_NAME=name
+      - BREVO_API_KEY=${BREVO_API_KEY}
+      - SENDER_EMAIL=${SENDER_EMAIL}
+      - SENDER_NAME=${SENDER_NAME}
       - PYTHONUNBUFFERED=1
 
   keycloak-db:

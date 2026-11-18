@@ -4,7 +4,6 @@
   "DicomAet": "NEUROCHIR_RECH",
   "DicomPort": 4242,
   "DicomModalities": {
-    "PACS-DEMO": { "AET": "HOSPITAL_2", "Host": "192.168.18.6", "Port": 5000 }
   },
   "Name": "CHUSJ Neurochirurgie recherche",
   "OrthancExplorer2": {
@@ -19,7 +18,7 @@
       "DefaultShareDuration": 0,
       "ShareDurations": [0, 7, 15, 30, 90, 365],
       "EnableOpenInOhifViewer3": true,
-      "AutoAddWildcardsToSearchFields": false,
+      "AutoAddWildcardsToSearchFields": true,
       "OhifViewer3PublicRoot": "http://pacs-neuro/orthanc/ohif/",
       "ViewersOrdering": ["ohif", "ohif-seg"],
       "CustomButtons": {
